@@ -8,53 +8,35 @@ public class PlayerMotor : MonoBehaviour
     private Vector3 playerVelocity;
     private bool isGrounded;
     private bool crouching = false;
-    private float crouchTimer = 1;
-    private bool lerpCrouch = false;
     private bool sprinting = false;
 
     public float speed = 5f;
     public float gravity = -9.8f;
     public float jumpHeight = 1.5f;
 
-    // Start is called before the first frame update
     void Start()
     {
         characterController = GetComponent<CharacterController>();
     }
 
-    // Update is called once per frame
     void Update()
     {
         isGrounded = characterController.isGrounded;
 
-        if (lerpCrouch)
+        if (crouching)
         {
-            crouchTimer += Time.deltaTime;
-            var  p = crouchTimer / 1;
-            p *= p;
-
-            if(crouching)
-            {
-                characterController.height = Mathf.Lerp(characterController.height, 1, p);
-            } else
-            {
-                characterController.height = Mathf.Lerp(characterController.height, 2, p);
-            }
-
-            if(p > 1)
-            {
-                lerpCrouch = false;
-                crouchTimer = 0f;
-            }
+            characterController.height = Mathf.Lerp(characterController.height, 1, 10);
+        }
+        else
+        {
+            characterController.height = Mathf.Lerp(characterController.height, 2, 10);
         }
     }
 
     public void Jump()
     {
-        
         if (isGrounded)
         {
-            Debug.Log("Jump Clicked");
             playerVelocity.y = Mathf.Sqrt(jumpHeight * -3.0f * gravity);
             characterController.Move(playerVelocity * Time.deltaTime);
         }
@@ -81,16 +63,14 @@ public class PlayerMotor : MonoBehaviour
 
     }
 
-    public void Crouch()
+    public void Crouch(bool isCrouchingInput)
     {
-        crouching = !crouching;
-        crouchTimer = 0;
-        lerpCrouch = true;
+        crouching = isCrouchingInput;
     }
 
-    public void Sprint()
+    public void Sprint(bool isSprintInput)
     {
-        sprinting = !sprinting;
+        sprinting = isSprintInput;
         if(sprinting)
         {
             speed = 8f;
