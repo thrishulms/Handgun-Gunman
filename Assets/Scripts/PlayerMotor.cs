@@ -7,6 +7,10 @@ public class PlayerMotor : MonoBehaviour
     private CharacterController characterController;
     private Vector3 playerVelocity;
     private bool isGrounded;
+    private bool crouching = false;
+    private float crouchTimer = 1;
+    private bool lerpCrouch = false;
+    private bool sprinting = false;
 
     public float speed = 5f;
     public float gravity = -9.8f;
@@ -22,6 +26,27 @@ public class PlayerMotor : MonoBehaviour
     void Update()
     {
         isGrounded = characterController.isGrounded;
+
+        if (lerpCrouch)
+        {
+            crouchTimer += Time.deltaTime;
+            var  p = crouchTimer / 1;
+            p *= p;
+
+            if(crouching)
+            {
+                characterController.height = Mathf.Lerp(characterController.height, 1, p);
+            } else
+            {
+                characterController.height = Mathf.Lerp(characterController.height, 2, p);
+            }
+
+            if(p > 1)
+            {
+                lerpCrouch = false;
+                crouchTimer = 0f;
+            }
+        }
     }
 
     public void Jump()
@@ -54,5 +79,24 @@ public class PlayerMotor : MonoBehaviour
         
         characterController.Move(playerVelocity * Time.deltaTime);
 
+    }
+
+    public void Crouch()
+    {
+        crouching = !crouching;
+        crouchTimer = 0;
+        lerpCrouch = true;
+    }
+
+    public void Sprint()
+    {
+        sprinting = !sprinting;
+        if(sprinting)
+        {
+            speed = 8f;
+        } else
+        {
+            speed = 5f;
+        }
     }
 }
